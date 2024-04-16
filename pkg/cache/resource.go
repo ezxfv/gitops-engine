@@ -25,6 +25,9 @@ type Resource struct {
 	// Optional whole resource manifest
 	Resource *unstructured.Unstructured
 
+	// Optional partial resource manifest
+	PartialResource *metav1.PartialObjectMetadata
+
 	// answers if resource is inferred parent of provided resource
 	isInferredParentOf func(key kube.ResourceKey) bool
 }

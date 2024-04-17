@@ -3,7 +3,6 @@ package cache
 import (
 	"context"
 	"fmt"
-	jsoniter "github.com/json-iterator/go"
 	"runtime/debug"
 	"sort"
 	"strings"
@@ -395,8 +394,10 @@ func (c *clusterCache) newResource(un *unstructured.Unstructured) *Resource {
 	} else {
 		var partialResource metav1.PartialObjectMetadata
 		partialResource.SetGroupVersionKind(un.GroupVersionKind())
-		data, _ := jsoniter.Marshal(un.Object["metadata"])
-		_ = jsoniter.Unmarshal(data, &partialResource.ObjectMeta)
+		partialResource.SetName(un.GetName())
+		partialResource.SetNamespace(un.GetNamespace())
+		partialResource.SetLabels(un.GetLabels())
+		partialResource.SetAnnotations(un.GetAnnotations())
 		resource.PartialResource = &partialResource
 	}
 

@@ -3,6 +3,7 @@ package cache
 import (
 	"context"
 	"fmt"
+	"github.com/argoproj/gitops-engine/pkg/diff"
 	"runtime/debug"
 	"sort"
 	"strings"
@@ -391,15 +392,17 @@ func (c *clusterCache) newResource(un *unstructured.Unstructured) *Resource {
 	}
 	if cacheManifest {
 		resource.Resource = un
-	} else {
-		var partialResource metav1.PartialObjectMetadata
-		partialResource.SetGroupVersionKind(un.GroupVersionKind())
-		partialResource.SetName(un.GetName())
-		partialResource.SetNamespace(un.GetNamespace())
-		partialResource.SetLabels(un.GetLabels())
-		partialResource.SetAnnotations(un.GetAnnotations())
-		resource.PartialResource = &partialResource
 	}
+	var partialResource metav1.PartialObjectMetadata
+	partialResource.SetGroupVersionKind(un.GroupVersionKind())
+	partialResource.SetName(un.GetName())
+	partialResource.SetNamespace(un.GetNamespace())
+	partialResource.SetCreationTimestamp(un.GetCreationTimestamp())
+	partialResource.SetLabels(un.GetLabels())
+	anno := un.GetAnnotations()
+	delete(anno, diff.AnnotationLastAppliedConfig)
+	partialResource.SetAnnotations(anno)
+	resource.PartialResource = &partialResource
 
 	return resource
 }
